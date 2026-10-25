@@ -1,0 +1,32 @@
+<!-- Public Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top" id="publicNavbar">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('main.index') }}">
+      <div class="brand-icon"><i class="bi bi-cloud-fill text-white"></i></div>
+      CloudShare
+    </a>
+
+    <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center gap-2">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('main.index') }}#features">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('main.index') }}#how-it-works">How It Works</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-outline-primary btn-sm px-4" href="{{ url_for('auth.login') }}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-primary btn-sm px-4" href="{{ url_for('auth.register') }}">Sign Up Free</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

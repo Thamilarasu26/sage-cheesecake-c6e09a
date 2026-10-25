@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1">
+        Welcome back, {{ current_user.name.split()[0] }}! 👋
+      </h1>
+      <p class="text-muted mb-0">Here's an overview of your files and sharing activity</p>
+    </div>
+    <a href="{{ url_for('files.upload') }}" class="btn btn-primary d-flex align-items-center gap-2">
+      <i class="bi bi-cloud-upload"></i> Upload Files
+    </a>
+  </div>
+
+  <!-- ── Stats Cards ────────────────────────────────────────────────── -->
+  <div class="row g-4 mb-5">
+    {% set stats = [
+      ('bi-files', 'Total Files', total_files, 'primary', url_for('files.manager')),
+      ('bi-hdd', 'Storage Used', (total_size / (1024*1024)) | round(1) | string + ' MB', 'info', url_for('files.manager')),
+      ('bi-share', 'Active Links', shared_count, 'success', url_for('sharing.manage')),
+    ] %}
+    {% for icon, label, value, color, link in stats %}
+    <div class="col-sm-6 col-lg-4">
+      <a href="{{ link }}" class="text-decoration-none">
+        <div class="stat-card card border-0 shadow-sm h-100 stat-card-{{ color }}">
+          <div class="card-body p-4 d-flex align-items-center gap-4">
+            <div class="stat-icon-wrapper bg-{{ color }}-subtle rounded-3 p-3">
+              <i class="bi {{ icon }} fs-3 text-{{ color }}"></i>
+            </div>
+            <div>
+              <div class="stat-number fw-extrabold">{{ value }}</div>
+              <div class="text-muted small">{{ label }}</div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Recent Uploads ─────────────────────────────────────────────── -->
+  <div class="row g-4">
+    <div class="col-xl-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+          <h5 class="fw-semibold mb-0">Recent Uploads</h5>
+          <a href="{{ url_for('files.manager') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_files %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-4">File</th>
+                  <th>Size</th>
+                  <th>Type</th>
+                  <th>Uploaded</th>
+                  <th class="pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for file in recent_files %}
+                <tr>
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="file-icon-sm {{ file.extension }}">
+                        <i class="bi {{ file_icon(file.extension) }}"></i>
+                      </div>
+                      <span class="fw-medium text-truncate" style="max-width:200px;">{{ file.original_filename }}</span>
+                    </div>
+                  </td>
+                  <td class="text-muted small">{{ file.size_human }}</td>
+                  <td><span class="badge bg-secondary-subtle text-secondary">{{ file.extension.upper() or '—' }}</span></td>
+                  <td class="text-muted small">{{ file.created_at.strftime('%d %b %Y') }}</td>
+                  <td class="pe-4">
+                    <div class="d-flex gap-2">
+                      <a href="{{ url_for('files.download', file_id=file.id) }}"
+                         class="btn btn-sm btn-outline-primary" title="Download">
+                        <i class="bi bi-download"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-state py-5">
+            <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+            <p class="text-muted mt-3">No files uploaded yet.</p>
+            <a href="{{ url_for('files.upload') }}" class="btn btn-primary btn-sm">Upload Your First File</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-xl-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent py-3">
+          <h5 class="fw-semibold mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body p-3">
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('files.upload') }}" class="btn btn-primary text-start d-flex align-items-center gap-2">
+              <i class="bi bi-cloud-upload fs-5"></i>
+              <div>
+                <div class="fw-semibold">Upload Files</div>
+                <small class="opacity-75">Add new files to your storage</small>
+              </div>
+            </a>
+            <a href="{{ url_for('files.manager') }}" class="btn btn-outline-secondary text-start d-flex align-items-center gap-2">
+              <i class="bi bi-folder2-open fs-5"></i>
+              <div>
+                <div class="fw-semibold">File Manager</div>
+                <small class="opacity-75">Browse and manage files</small>
+              </div>
+            </a>
+            <a href="{{ url_for('sharing.manage') }}" class="btn btn-outline-secondary text-start d-flex align-items-center gap-2">
+              <i class="bi bi-share fs-5"></i>
+              <div>
+                <div class="fw-semibold">Sharing Links</div>
+                <small class="opacity-75">Create and manage share links</small>
+              </div>
+            </a>
+            <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary text-start d-flex align-items-center gap-2">
+              <i class="bi bi-gear fs-5"></i>
+              <div>
+                <div class="fw-semibold">Settings</div>
+                <small class="opacity-75">Update profile and password</small>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// File icon helper exposed via Jinja custom filter (defined below)
+// Also available in JS for dynamic UIs
+</script>
+{% endblock %}

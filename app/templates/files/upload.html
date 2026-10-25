@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Upload Files{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Upload Files</li>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1">Upload Files</h1>
+      <p class="text-muted mb-0">Max 50 MB per file. Drag & drop or click to select.</p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <form method="POST" action="{{ url_for('files.upload') }}"
+            enctype="multipart/form-data" id="uploadForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <!-- Drop zone -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <div class="upload-dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" name="files" multiple hidden
+                     accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.bmp,.svg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.json,.xml,.zip,.tar,.gz,.mp3,.mp4,.mov,.avi,.mkv,.py,.js,.html,.css,.java,.c,.cpp" />
+              <div class="dropzone-content" id="dropzoneContent">
+                <div class="dropzone-icon">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <p class="fw-semibold mb-1">Drag & drop files here</p>
+                <p class="text-muted small mb-3">or click to browse your computer</p>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                  Choose Files
+                </span>
+              </div>
+            </div>
+
+            <!-- File preview list -->
+            <div id="filePreviewList" class="mt-4 d-none">
+              <h6 class="fw-semibold mb-3">Selected Files</h6>
+              <div id="previewItems"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent py-3">
+            <h6 class="fw-semibold mb-0">Upload Options</h6>
+          </div>
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <label for="folder" class="form-label fw-medium">Save to Folder</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-folder2"></i></span>
+                <input type="text" class="form-control" id="folder" name="folder"
+                       placeholder="/ (root)" value="/" />
+              </div>
+              <small class="text-muted">Use "/" for the root folder or type a new folder name.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress bar (shown during upload) -->
+        <div id="uploadProgressSection" class="d-none mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="fw-semibold">Uploading…</small>
+            <small id="uploadPercent" class="text-primary">0%</small>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                 id="uploadProgressBar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-primary px-5 fw-semibold" id="uploadBtn" disabled>
+            <i class="bi bi-cloud-upload me-2"></i> Upload Files
+          </button>
+          <a href="{{ url_for('files.manager') }}" class="btn btn-outline-secondary px-5">
+            Cancel
+          </a>
+        </div>
+      </form>
+
+      <!-- Allowed types -->
+      <div class="mt-4">
+        <details>
+          <summary class="text-muted small cursor-pointer">Allowed file types</summary>
+          <div class="mt-2">
+            <div class="d-flex flex-wrap gap-1 mt-2">
+              {% for ext in ['PDF','DOC','DOCX','XLS','XLSX','PPT','PPTX',
+                             'TXT','CSV','JSON','XML',
+                             'PNG','JPG','JPEG','GIF','BMP','SVG',
+                             'ZIP','TAR','GZ',
+                             'MP3','MP4','MOV','AVI',
+                             'PY','JS','HTML','CSS','JAVA','C','CPP'] %}
+              <span class="badge bg-secondary-subtle text-secondary">{{ ext }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const previewList = document.getElementById('filePreviewList');
+const previewItems = document.getElementById('previewItems');
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = {pdf:'file-earmark-pdf text-danger', doc:'file-earmark-word text-primary',
+    docx:'file-earmark-word text-primary', xls:'file-earmark-excel text-success',
+    xlsx:'file-earmark-excel text-success', ppt:'file-earmark-ppt text-warning',
+    pptx:'file-earmark-ppt text-warning', png:'file-earmark-image text-info',
+    jpg:'file-earmark-image text-info', jpeg:'file-earmark-image text-info',
+    gif:'file-earmark-image text-info', zip:'file-earmark-zip text-secondary',
+    gz:'file-earmark-zip text-secondary', tar:'file-earmark-zip text-secondary',
+    mp3:'file-earmark-music text-purple', mp4:'file-earmark-play text-danger',
+    py:'file-earmark-code text-warning', js:'file-earmark-code text-warning',
+    html:'file-earmark-code text-orange', css:'file-earmark-code text-info',
+  };
+  return 'bi-' + (icons[ext] || 'file-earmark text-muted');
+}
+
+function renderPreview(files) {
+  previewItems.innerHTML = '';
+  Array.from(files).forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'preview-item d-flex align-items-center gap-3 mb-2 p-3 rounded-3 bg-light';
+    div.innerHTML = `
+      <i class="bi ${fileIcon(f.name)} fs-4"></i>
+      <div class="flex-grow-1 text-truncate">
+        <div class="fw-medium text-truncate">${f.name}</div>
+        <small class="text-muted">${formatBytes(f.size)}</small>
+      </div>
+      ${f.size > 50*1024*1024 ? '<span class="badge bg-danger">Too large</span>' : '<span class="badge bg-success-subtle text-success"><i class="bi bi-check2"></i> OK</span>'}
+    `;
+    previewItems.appendChild(div);
+  });
+  previewList.classList.remove('d-none');
+  uploadBtn.disabled = Array.from(files).every(f => f.size > 50*1024*1024);
+}
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length > 0) renderPreview(fileInput.files);
+});
+
+// Drag & drop
+['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault();
+  dropZone.classList.add('dragover');
+}));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault();
+  dropZone.classList.remove('dragover');
+}));
+dropZone.addEventListener('drop', ev => {
+  ev.preventDefault();
+  const dt = ev.dataTransfer;
+  fileInput.files = dt.files;
+  renderPreview(dt.files);
+});
+
+// Upload progress simulation (real XHR progress in production)
+document.getElementById('uploadForm').addEventListener('submit', function() {
+  const section = document.getElementById('uploadProgressSection');
+  const bar = document.getElementById('uploadProgressBar');
+  const pct = document.getElementById('uploadPercent');
+  section.classList.remove('d-none');
+  uploadBtn.disabled = true;
+  // Animate bar (server handles actual progress via form POST)
+  let p = 0;
+  const iv = setInterval(() => {
+    p = Math.min(p + Math.random()*15, 90);
+    bar.style.width = p + '%';
+    pct.textContent = Math.round(p) + '%';
+    if (p >= 90) clearInterval(iv);
+  }, 200);
+});
+</script>
+{% endblock %}

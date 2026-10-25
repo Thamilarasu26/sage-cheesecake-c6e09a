@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Sharing Links{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Sharing Links</li>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1">Sharing Links</h1>
+      <p class="text-muted mb-0">Create and manage secure sharing links for your files</p>
+    </div>
+    <button class="btn btn-primary d-flex align-items-center gap-2"
+            data-bs-toggle="modal" data-bs-target="#createLinkModal" id="createLinkBtn">
+      <i class="bi bi-plus-lg"></i> Create Link
+    </button>
+  </div>
+
+  <!-- Active Links Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent py-3">
+      <h5 class="fw-semibold mb-0">Your Sharing Links</h5>
+    </div>
+    <div class="card-body p-0">
+      {% if links %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">File</th>
+              <th>Status</th>
+              <th>Expires</th>
+              <th>Password</th>
+              <th>Download</th>
+              <th>Created</th>
+              <th class="pe-4 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for link in links %}
+            <tr class="{% if link.is_revoked %}opacity-50{% endif %}">
+              <td class="ps-4">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-earmark text-muted"></i>
+                  <span class="text-truncate" style="max-width:180px;">{{ link.file.original_filename }}</span>
+                </div>
+              </td>
+              <td>
+                {% if link.is_revoked %}
+                  <span class="badge bg-danger-subtle text-danger">Revoked</span>
+                {% elif link.is_expired %}
+                  <span class="badge bg-warning-subtle text-warning">Expired</span>
+                {% else %}
+                  <span class="badge bg-success-subtle text-success">Active</span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">
+                {% if link.expires_at %}
+                  {{ link.expires_at.strftime('%d %b %Y %H:%M') }}
+                {% else %}
+                  <span class="text-muted">Never</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if link.password_hash %}
+                  <i class="bi bi-lock-fill text-warning" title="Password protected"></i>
+                {% else %}
+                  <i class="bi bi-unlock text-muted" title="No password"></i>
+                {% endif %}
+              </td>
+              <td>
+                {% if link.allow_download %}
+                  <i class="bi bi-check-circle-fill text-success" title="Download allowed"></i>
+                {% else %}
+                  <i class="bi bi-eye text-info" title="View only"></i>
+                {% endif %}
+              </td>
+              <td class="text-muted small">{{ link.created_at.strftime('%d %b %Y') }}</td>
+              <td class="pe-4">
+                <div class="d-flex justify-content-end gap-1">
+                  {% if link.is_active %}
+                  <button class="btn btn-sm btn-outline-primary"
+                          onclick="copyLink('{{ request.host_url }}share/{{ link.token }}')"
+                          title="Copy Link" id="copy-link-{{ link.id }}">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                  <a href="{{ url_for('sharing.access_shared', token=link.token) }}"
+                     target="_blank" class="btn btn-sm btn-outline-secondary" title="Preview"
+                     id="preview-link-{{ link.id }}">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                  <form method="POST" action="{{ url_for('sharing.revoke_link', link_id=link.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Revoke"
+                            id="revoke-link-{{ link.id }}"
+                            onclick="return confirm('Revoke this sharing link?')">
+                      <i class="bi bi-slash-circle"></i>
+                    </button>
+                  </form>
+                  {% else %}
+                  <span class="text-muted small">—</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state py-6 text-center">
+        <i class="bi bi-share fs-1 text-muted"></i>
+        <p class="text-muted mt-3 mb-1">No sharing links yet</p>
+        <p class="text-muted small">Create a link to share files securely with others.</p>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createLinkModal">
+          <i class="bi bi-plus me-1"></i> Create First Link
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── Create Link Modal ─────────────────────────────────────────────── -->
+<div class="modal fade" id="createLinkModal" tabindex="-1" aria-labelledby="createLinkModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createLinkModalLabel">
+          <i class="bi bi-link-45deg me-2 text-primary"></i>Create Sharing Link
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('sharing.create_link') }}" id="createLinkForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <!-- File select -->
+            <div class="col-12">
+              <label for="file_id" class="form-label fw-medium">Select File <span class="text-danger">*</span></label>
+              <select class="form-select" id="file_id" name="file_id" required>
+                <option value="">— Choose a file —</option>
+                {% for f in files %}
+                <option value="{{ f.id }}">{{ f.original_filename }} ({{ f.size_human }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Expiry -->
+            <div class="col-md-6">
+              <label for="expires_at" class="form-label fw-medium">Expiration Date & Time</label>
+              <input type="datetime-local" class="form-control" id="expires_at" name="expires_at" />
+              <small class="text-muted">Leave blank for no expiration.</small>
+            </div>
+
+            <!-- Share password -->
+            <div class="col-md-6">
+              <label for="share_password" class="form-label fw-medium">Share Password (optional)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" class="form-control" id="share_password"
+                       name="share_password" placeholder="Leave blank for no password" />
+              </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="col-12">
+              <label class="form-label fw-medium">Permissions</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="allow_download"
+                       name="allow_download" value="1" checked />
+                <label class="form-check-label" for="allow_download">
+                  Allow recipient to download the file
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="createLinkSubmitBtn">
+            <i class="bi bi-link-45deg me-1"></i> Generate Link
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for copy link -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="copyToast" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body"><i class="bi bi-check-circle me-2"></i> Link copied to clipboard!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function copyLink(url) {
+  try {
+    await navigator.clipboard.writeText(url);
+    const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+    toast.show();
+  } catch {
+    prompt('Copy this link:', url);
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card-wrapper">
+    <div class="auth-card card shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <!-- Header -->
+        <div class="text-center mb-4">
+          <div class="auth-logo mb-3">
+            <i class="bi bi-cloud-fill"></i>
+          </div>
+          <h1 class="h3 fw-bold">Create Your Account</h1>
+          <p class="text-muted small">Join CloudShare – secure file sharing for everyone</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <!-- Full Name -->
+          <div class="mb-3">
+            <label for="name" class="form-label fw-medium">Full Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input type="text" class="form-control" id="name" name="name"
+                     placeholder="John Doe"
+                     value="{{ name or '' }}" required autocomplete="name" />
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label fw-medium">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+              <input type="email" class="form-control" id="email" name="email"
+                     placeholder="you@example.com"
+                     value="{{ email or '' }}" required autocomplete="email" />
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label fw-medium">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password"
+                     placeholder="Min 8 chars, 1 uppercase, 1 digit"
+                     required autocomplete="new-password" />
+              <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                      onclick="togglePwVisibility('password', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <!-- Password strength bar -->
+            <div class="mt-2">
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar" id="pwStrengthBar" style="width:0%"></div>
+              </div>
+              <small class="text-muted" id="pwStrengthLabel"></small>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-4">
+            <label for="confirm_password" class="form-label fw-medium">Confirm Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+              <input type="password" class="form-control" id="confirm_password"
+                     name="confirm_password" placeholder="Re-enter password"
+                     required autocomplete="new-password" />
+              <button class="btn btn-outline-secondary" type="button"
+                      onclick="togglePwVisibility('confirm_password', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div id="confirmError" class="text-danger small mt-1 d-none">Passwords do not match.</div>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="registerBtn">
+            <i class="bi bi-person-plus me-2"></i> Create Account
+          </button>
+        </form>
+
+        <hr class="my-4" />
+
+        <p class="text-center text-muted small mb-0">
+          Already have an account?
+          <a href="{{ url_for('auth.login') }}" class="fw-semibold">Sign In</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Password strength indicator
+  const pwInput = document.getElementById('password');
+  const bar = document.getElementById('pwStrengthBar');
+  const label = document.getElementById('pwStrengthLabel');
+
+  pwInput.addEventListener('input', () => {
+    const val = pwInput.value;
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      {pct:'25%', cls:'bg-danger', txt:'Weak'},
+      {pct:'50%', cls:'bg-warning', txt:'Fair'},
+      {pct:'75%', cls:'bg-info', txt:'Good'},
+      {pct:'100%', cls:'bg-success', txt:'Strong'},
+    ];
+    if (val.length === 0) {
+      bar.style.width = '0%';
+      label.textContent = '';
+      return;
+    }
+    const lvl = levels[score - 1] || levels[0];
+    bar.style.width = lvl.pct;
+    bar.className = 'progress-bar ' + lvl.cls;
+    label.textContent = lvl.txt;
+  });
+
+  // Confirm match
+  document.getElementById('confirm_password').addEventListener('input', function() {
+    const err = document.getElementById('confirmError');
+    if (this.value && this.value !== pwInput.value) {
+      err.classList.remove('d-none');
+    } else {
+      err.classList.add('d-none');
+    }
+  });
+</script>
+{% endblock %}

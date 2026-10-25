@@ -1,0 +1,70 @@
+<!-- Sidebar Navigation -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <i class="bi bi-cloud-fill text-primary me-2 fs-4"></i>
+    <span class="fw-bold fs-5">CloudShare</span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('files.dashboard') }}"
+         class="sidebar-nav-link {% if request.endpoint == 'files.dashboard' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('files.manager') }}"
+         class="sidebar-nav-link {% if request.endpoint == 'files.manager' %}active{% endif %}">
+        <i class="bi bi-folder2-open"></i>
+        <span>File Manager</span>
+      </a>
+    </li>
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('files.upload') }}"
+         class="sidebar-nav-link {% if request.endpoint == 'files.upload' %}active{% endif %}">
+        <i class="bi bi-cloud-upload"></i>
+        <span>Upload Files</span>
+      </a>
+    </li>
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('sharing.manage') }}"
+         class="sidebar-nav-link {% if request.endpoint == 'sharing.manage' %}active{% endif %}">
+        <i class="bi bi-share"></i>
+        <span>Sharing Links</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-divider"></div>
+
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('auth.profile') }}"
+         class="sidebar-nav-link {% if request.endpoint == 'auth.profile' %}active{% endif %}">
+        <i class="bi bi-person-circle"></i>
+        <span>Profile</span>
+      </a>
+    </li>
+    <li class="sidebar-nav-item">
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-nav-link text-danger">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Storage usage mini bar -->
+  <div class="sidebar-footer mt-auto px-3 pb-3">
+    <div class="sidebar-divider"></div>
+    <small class="text-muted d-block mb-1">Storage</small>
+    <div class="progress" style="height:6px;">
+      <div class="progress-bar bg-primary" style="width: 30%"></div>
+    </div>
+    <small class="text-muted">Local mode active</small>
+  </div>
+</nav>
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>

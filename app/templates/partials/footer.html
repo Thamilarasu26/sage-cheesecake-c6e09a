@@ -1,0 +1,46 @@
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="brand-icon"><i class="bi bi-cloud-fill text-white"></i></div>
+          <span class="fw-bold text-white fs-5">CloudShare</span>
+        </div>
+        <p class="text-muted small">
+          A secure cloud file sharing platform built as a Computer Science Engineering mini project.
+          Upload, manage, and share files with confidence.
+        </p>
+      </div>
+      <div class="col-lg-2 col-6">
+        <h6 class="text-white fw-semibold mb-3">Product</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="{{ url_for('main.index') }}#features">Features</a></li>
+          <li><a href="{{ url_for('auth.register') }}">Get Started</a></li>
+          <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <h6 class="text-white fw-semibold mb-3">Security</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="#">Encryption</a></li>
+          <li><a href="#">Access Control</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <h6 class="text-white fw-semibold mb-3">Project Info</h6>
+        <p class="text-muted small">
+          <i class="bi bi-mortarboard me-1"></i> CSE Mini Project – Semester VI<br>
+          <i class="bi bi-stack me-1"></i> Flask · MySQL · Bootstrap 5 · AWS S3<br>
+          <i class="bi bi-shield-lock me-1"></i> CSRF · Secure Sessions · Hashed Passwords
+        </p>
+      </div>
+    </div>
+    <hr class="border-secondary mt-4" />
+    <div class="d-flex flex-wrap justify-content-between align-items-center text-muted small pb-3">
+      <span>&copy; {{ 2025 }} CloudShare. Built for academic demonstration.</span>
+      <span>Made with <i class="bi bi-heart-fill text-danger"></i> using Python Flask</span>
+    </div>
+  </div>
+</footer>

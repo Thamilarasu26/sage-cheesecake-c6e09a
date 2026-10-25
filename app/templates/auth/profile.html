@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Profile & Settings{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Profile & Settings</li>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header mb-4">
+    <h1 class="h3 fw-bold mb-1">Profile & Settings</h1>
+    <p class="text-muted mb-0">Manage your account details and security settings</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Account Info -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-4">
+          <div class="avatar-lg mx-auto mb-3">{{ current_user.name[0].upper() }}</div>
+          <h5 class="fw-bold mb-1">{{ current_user.name }}</h5>
+          <p class="text-muted small mb-3">{{ current_user.email }}</p>
+          <span class="badge bg-primary-subtle text-primary">Active Account</span>
+          <hr />
+          <ul class="list-unstyled text-start small text-muted">
+            <li class="mb-2"><i class="bi bi-calendar me-2"></i> Joined {{ current_user.created_at.strftime('%b %d, %Y') }}</li>
+            <li class="mb-2"><i class="bi bi-files me-2"></i> {{ current_user.files.count() }} files uploaded</li>
+            <li><i class="bi bi-share me-2"></i> {{ current_user.shared_links.count() }} sharing links</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <!-- Update Name -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <h5 class="fw-semibold mb-0"><i class="bi bi-person me-2 text-primary"></i>Personal Information</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('auth.profile') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="action" value="update_name" />
+            <div class="mb-3">
+              <label for="name" class="form-label fw-medium">Full Name</label>
+              <input type="text" class="form-control" id="name" name="name"
+                     value="{{ current_user.name }}" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Email Address</label>
+              <input type="email" class="form-control" value="{{ current_user.email }}" disabled />
+              <small class="text-muted">Email cannot be changed.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check2 me-1"></i> Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3">
+          <h5 class="fw-semibold mb-0"><i class="bi bi-lock me-2 text-warning"></i>Change Password</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('auth.profile') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="action" value="change_password" />
+            <div class="mb-3">
+              <label for="current_password" class="form-label fw-medium">Current Password</label>
+              <input type="password" class="form-control" id="current_password"
+                     name="current_password" required autocomplete="current-password" />
+            </div>
+            <div class="mb-3">
+              <label for="new_password" class="form-label fw-medium">New Password</label>
+              <input type="password" class="form-control" id="new_password"
+                     name="new_password" required autocomplete="new-password"
+                     placeholder="Min 8 chars, 1 uppercase, 1 digit" />
+            </div>
+            <div class="mb-4">
+              <label for="confirm_password" class="form-label fw-medium">Confirm New Password</label>
+              <input type="password" class="form-control" id="confirm_password"
+                     name="confirm_password" required autocomplete="new-password" />
+            </div>
+            <button type="submit" class="btn btn-warning text-dark fw-semibold">
+              <i class="bi bi-key me-1"></i> Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

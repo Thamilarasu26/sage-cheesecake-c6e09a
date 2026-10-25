@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Link Invalid{% endblock %}
+
+{% block content %}
+<section class="shared-section">
+  <div class="shared-card card border-0 shadow-lg">
+    <div class="card-body p-5 text-center">
+      <div class="mb-4 text-danger">
+        <i class="bi bi-x-circle-fill" style="font-size: 4rem;"></i>
+      </div>
+      <h2 class="fw-bold mb-3">Link Not Available</h2>
+      <div class="alert alert-danger d-inline-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-shield-x flex-shrink-0"></i>
+        {{ reason }}
+      </div>
+      <p class="text-muted mb-4">
+        The sharing link you used is no longer valid. Please contact the file owner
+        for a new link.
+      </p>
+      <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary px-5">
+        <i class="bi bi-house me-2"></i> Go Home
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

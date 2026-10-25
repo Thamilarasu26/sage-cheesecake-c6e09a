@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Shared File{% endblock %}
+
+{% block content %}
+<section class="shared-section">
+  <div class="shared-card card border-0 shadow-lg">
+    <div class="card-body p-5 text-center">
+      <!-- Icon based on file type -->
+      <div class="shared-file-icon mb-4">
+        <i class="bi bi-file-earmark-arrow-down text-primary"></i>
+      </div>
+
+      <h2 class="fw-bold mb-2">{{ file.original_filename }}</h2>
+      <p class="text-muted mb-4">
+        <i class="bi bi-hdd me-1"></i>{{ file.size_human }}
+        &nbsp;·&nbsp;
+        <span class="badge bg-secondary-subtle text-secondary">{{ file.extension.upper() or 'FILE' }}</span>
+      </p>
+
+      <!-- Permissions info -->
+      <div class="d-flex justify-content-center gap-4 mb-4">
+        <div class="text-center">
+          <div class="text-muted small mb-1">Status</div>
+          <span class="badge bg-success-subtle text-success fs-6 px-3">
+            <i class="bi bi-shield-check me-1"></i>Verified
+          </span>
+        </div>
+        {% if link.expires_at %}
+        <div class="text-center">
+          <div class="text-muted small mb-1">Expires</div>
+          <span class="badge bg-warning-subtle text-warning">
+            {{ link.expires_at.strftime('%d %b %Y %H:%M') }}
+          </span>
+        </div>
+        {% endif %}
+        <div class="text-center">
+          <div class="text-muted small mb-1">Permission</div>
+          <span class="badge bg-info-subtle text-info">
+            {% if link.allow_download %}Download{% else %}View Only{% endif %}
+          </span>
+        </div>
+      </div>
+
+      {% if link.allow_download %}
+      <a href="{{ url_for('sharing.access_shared', token=token) }}?download=1"
+         class="btn btn-primary btn-lg px-6 fw-semibold" id="downloadSharedFileBtn">
+        <i class="bi bi-download me-2"></i> Download File
+      </a>
+      {% else %}
+      <div class="alert alert-info d-inline-flex align-items-center gap-2">
+        <i class="bi bi-eye"></i>
+        This link is view-only. Downloads are not permitted.
+      </div>
+      {% endif %}
+
+      <div class="mt-4">
+        <small class="text-muted">
+          <i class="bi bi-shield-lock me-1"></i>
+          This is a secure CloudShare link. Your access is logged.
+        </small>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

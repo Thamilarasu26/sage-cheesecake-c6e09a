@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShare – Secure Cloud File Sharing{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero Section ─────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-bg-shapes">
+    <div class="hero-shape shape-1"></div>
+    <div class="hero-shape shape-2"></div>
+    <div class="hero-shape shape-3"></div>
+  </div>
+  <div class="container">
+    <div class="row align-items-center min-vh-80 py-5">
+      <div class="col-lg-6 text-center text-lg-start">
+        <span class="badge-hero mb-3">🔒 Enterprise-Grade Security</span>
+        <h1 class="display-4 fw-extrabold lh-sm mb-4">
+          Secure Cloud File<br/>
+          <span class="text-gradient">Sharing Made Simple</span>
+        </h1>
+        <p class="lead text-muted mb-5">
+          Upload, store, and share files with your team securely. Control who has access,
+          set expiry dates, and revoke links instantly — all from one powerful dashboard.
+        </p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5 hero-btn">
+            <i class="bi bi-rocket-takeoff me-2"></i> Get Started Free
+          </a>
+          <a href="#features" class="btn btn-outline-secondary btn-lg px-5">
+            <i class="bi bi-play-circle me-2"></i> See Features
+          </a>
+        </div>
+        <div class="hero-stats mt-5 d-flex flex-wrap gap-4 justify-content-center justify-content-lg-start">
+          <div class="stat">
+            <div class="stat-value">256-bit</div>
+            <div class="stat-label">AES Encryption</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <div class="stat-value">50 MB</div>
+            <div class="stat-label">Max File Size</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <div class="stat-value">∞</div>
+            <div class="stat-label">Share Links</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mt-5 mt-lg-0 d-flex justify-content-center">
+        <div class="hero-mockup">
+          <div class="mockup-window">
+            <div class="mockup-titlebar">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+              <span class="ms-auto text-muted small">cloudshare.app/dashboard</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-stat-row">
+                <div class="mockup-stat-card blue">
+                  <i class="bi bi-files"></i>
+                  <div>
+                    <div class="fw-bold">24 Files</div>
+                    <small>Uploaded</small>
+                  </div>
+                </div>
+                <div class="mockup-stat-card green">
+                  <i class="bi bi-share"></i>
+                  <div>
+                    <div class="fw-bold">8 Links</div>
+                    <small>Active</small>
+                  </div>
+                </div>
+              </div>
+              <div class="mockup-file-row">
+                <div class="mockup-file"><i class="bi bi-file-earmark-pdf text-danger"></i> <span>report.pdf</span> <span class="ms-auto text-muted">2.4 MB</span></div>
+                <div class="mockup-file"><i class="bi bi-file-earmark-image text-primary"></i> <span>design.png</span> <span class="ms-auto text-muted">1.1 MB</span></div>
+                <div class="mockup-file"><i class="bi bi-file-earmark-zip text-warning"></i> <span>project.zip</span> <span class="ms-auto text-muted">8.7 MB</span></div>
+                <div class="mockup-file"><i class="bi bi-file-earmark-code text-success"></i> <span>app.py</span> <span class="ms-auto text-muted">12 KB</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features Section ─────────────────────────────────────────────────── -->
+<section id="features" class="features-section py-6">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-tag">Why CloudShare?</span>
+      <h2 class="section-title">Everything You Need to Share Securely</h2>
+      <p class="section-subtitle">Built with security-first architecture for developers, students, and teams.</p>
+    </div>
+    <div class="row g-4">
+      {% set features = [
+        ('bi-shield-lock-fill', 'Secure Authentication', 'Bcrypt password hashing, session-based auth, and CSRF protection on every form.', 'primary'),
+        ('bi-link-45deg', 'Controlled Sharing Links', 'Generate unique tokens, set expiry dates, add password protection, and revoke instantly.', 'success'),
+        ('bi-cloud-upload-fill', 'Multi-File Upload', 'Drag-and-drop upload supporting 30+ file types up to 50 MB each with progress tracking.', 'info'),
+        ('bi-folder2-open', 'File Manager', 'Organize files into folders, search, rename, preview, and delete with one click.', 'warning'),
+        ('bi-aws', 'AWS S3 Integration', 'Store files on private S3 buckets. Access via short-lived presigned URLs. Never public by default.', 'danger'),
+        ('bi-phone', 'Fully Responsive', 'Works seamlessly on mobile, tablet, and desktop. Dark-mode ready.', 'secondary'),
+      ] %}
+      {% for icon, title, desc, color in features %}
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon text-{{ color }}">
+            <i class="bi {{ icon }}"></i>
+          </div>
+          <h5 class="fw-semibold mt-3 mb-2">{{ title }}</h5>
+          <p class="text-muted small mb-0">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ─────────────────────────────────────────────────────── -->
+<section id="how-it-works" class="how-section py-6">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-tag">Simple Process</span>
+      <h2 class="section-title">Share Files in 3 Easy Steps</h2>
+    </div>
+    <div class="row g-4 justify-content-center">
+      {% for step, icon, title, desc in [
+        ('01', 'bi-person-plus', 'Create Account', 'Sign up for free in seconds. No credit card required.'),
+        ('02', 'bi-cloud-upload', 'Upload Files', 'Drag and drop files or select from your computer.'),
+        ('03', 'bi-send', 'Share Securely', 'Generate a secure link with optional password and expiry.'),
+      ] %}
+      <div class="col-md-4 text-center">
+        <div class="step-card">
+          <div class="step-number">{{ step }}</div>
+          <div class="step-icon"><i class="bi {{ icon }}"></i></div>
+          <h5 class="fw-semibold mt-3 mb-2">{{ title }}</h5>
+          <p class="text-muted small">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-6">
+        <i class="bi bi-rocket-takeoff me-2"></i> Start Sharing Now
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
